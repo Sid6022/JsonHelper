@@ -1,0 +1,56 @@
+
+
+import UIKit
+
+class ViewController: UIViewController {
+
+     var arrHomeData = [HomeModel]()
+    
+    @IBOutlet weak var tblView: UITableView!
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        parseJSON()
+        
+        // Do any additional setup after loading the view, typically from a nib.
+    }
+    //MARK:- API call
+    func parseJSON() {
+        let url = URL(string: Helper.BaseUrl)
+        let task = URLSession.shared.dataTask(with: url!) {(data, response, error) in
+            guard error == nil else {
+                print("returning error")
+                return }
+            guard let content = data else {
+                print("not returning data")
+                return }
+            
+            guard let json = (try? JSONSerialization.jsonObject(with: content, options: JSONSerialization.ReadingOptions.mutableContainers)) as? [[String: Any]] else {
+                print("Not containing JSON")
+                return }
+            
+            for aData in json{
+                let aData = HomeModel(fromDictionary: aData)
+                self.arrHomeData.append(aData)
+            }
+            print(self.arrHomeData.count)
+
+            DispatchQueue.main.async {
+                self.tblView.reloadData()
+            }
+        }
+        task.resume()
+    }
+}
+extension ViewController : UITableViewDataSource{
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return arrHomeData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let Cell = tableView.dequeueReusableCell(withIdentifier: "dataCell")
+        Cell?.detailTextLabel?.text = arrHomeData[indexPath.row].id
+        Cell?.textLabel?.text = arrHomeData[indexPath.row].name
+        return Cell!
+    }
+}
