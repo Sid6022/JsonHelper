@@ -27,12 +27,16 @@ class ViewController: UIViewController {
             guard let json = (try? JSONSerialization.jsonObject(with: content, options: JSONSerialization.ReadingOptions.mutableContainers)) as? [[String: Any]] else {
                 print("Not containing JSON")
                 return }
-            
+                
+            //using for loop
             for aData in json{
                 let aData = HomeModel(fromDictionary: aData)
                 self.arrHomeData.append(aData)
             }
-            print(self.arrHomeData.count)
+               //Using map  
+            self.arrHomeData = json.map { HomeModel(fromDictionary: $0) }
+            
+          print(self.arrHomeData.count)
 
             DispatchQueue.main.async {
                 self.tblView.reloadData()
